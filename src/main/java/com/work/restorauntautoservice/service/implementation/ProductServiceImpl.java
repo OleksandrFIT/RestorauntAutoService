@@ -29,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
         productToUpdate.setActualPrice(product.getActualPrice());
         productToUpdate.setActualPrice(product.getActualPrice());
         productToUpdate.setAvailableQuantity(product.getAvailableQuantity());
-        return productToUpdate;
+        return productRepository.save(productToUpdate);
     }
 
     @Override

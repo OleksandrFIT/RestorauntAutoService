@@ -16,10 +16,10 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 public class Product {
 
     @MongoId(value = FieldType.OBJECT_ID)
-    private String id;
+    public String id;
     private String name;
     private String code;
-    private ProductCategory category;
+    public ProductCategory category;
     private String provider;
     private double orderPrice;
     public double actualPrice;

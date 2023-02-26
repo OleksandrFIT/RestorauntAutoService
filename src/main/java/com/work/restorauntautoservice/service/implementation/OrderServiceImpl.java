@@ -34,7 +34,7 @@ public class OrderServiceImpl implements OrderService {
                 ABCList.component1(),
                 order.getQuantity()
         );
-        return createOrder(newOrder);
+        return orderRepository.save(newOrder);
     }
 
     @Override

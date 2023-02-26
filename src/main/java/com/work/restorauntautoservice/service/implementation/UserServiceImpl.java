@@ -1,6 +1,5 @@
 package com.work.restorauntautoservice.service.implementation;
 
-import com.work.restorauntautoservice.exception.UserNameNotFoundException;
 import com.work.restorauntautoservice.model.User;
 import com.work.restorauntautoservice.repository.UserRepository;
 import com.work.restorauntautoservice.service.UserService;
@@ -52,6 +51,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User editUser(String userName,User user) {
         User userToUpdate = userRepository.findByUsername(userName);
         userToUpdate.setPassword(user.getPassword());
-        return userToUpdate;
+        return userRepository.save(userToUpdate);
     }
 }
