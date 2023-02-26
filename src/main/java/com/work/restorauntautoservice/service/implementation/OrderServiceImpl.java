@@ -1,6 +1,7 @@
 package com.work.restorauntautoservice.service.implementation;
 
 import com.work.restorauntautoservice.analysisAl.ABCanalysisServiceImpl;
+import com.work.restorauntautoservice.analysisAl.CountRestAlgorithmServiceImpl;
 import com.work.restorauntautoservice.model.Order;
 import com.work.restorauntautoservice.model.Product;
 import com.work.restorauntautoservice.repository.OrderRepository;
@@ -18,20 +19,16 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    ABCanalysisServiceImpl abCanalysisService;
+    CountRestAlgorithmServiceImpl countRestAlgorithmService;
 
     @Override
     public Order createOrder(Order order) {
-        List<Product> allProducts = productRepository.findAll();
-        Triple<List<Product>, List<Product>, List<Product>> ABCList = abCanalysisService.abcAnalysis(allProducts, 0.8, 0.95);
         Order newOrder = new Order(
                 order.getId(),
                 order.getName(),
                 order.getCode(),
                 order.getPrice(),
-                ABCList.component1(),
+                countRestAlgorithmService.countRestProducts(),
                 order.getQuantity()
         );
         return orderRepository.save(newOrder);

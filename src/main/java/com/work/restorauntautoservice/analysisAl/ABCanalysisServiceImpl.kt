@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class ABCanalysisServiceImpl : ABCanalysisService {
-
+class ABCanalysisServiceImpl(
     @Autowired
-    var productService: ProductServiceImpl? = null
+    var productService: ProductServiceImpl
+) : ABCanalysisService {
+//        Triple<List<Product>, List<Product>, List<Product>> ABCList = abCanalysisService.abcAnalysis(allProducts, 0.8, 0.95);
 
     override fun abcAnalysis(
         items: List<Product>,
