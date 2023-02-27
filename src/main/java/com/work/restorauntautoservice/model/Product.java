@@ -17,12 +17,12 @@ public class Product {
 
     @MongoId(value = FieldType.OBJECT_ID)
     public String id;
-    private String name;
+    public String name;
     private String code;
     public ProductCategory category;
     private String provider;
     private double orderPrice;
     public double actualPrice;
-    private short availableQuantity;
-    private short maxQuantity;
+    public short availableQuantity;
+    public short maxQuantity;
 }

@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 public class PurchaseServiceImpl implements PurchaseService {
     @Autowired
     private PurchaseRepository purchaseRepository;
+    @Autowired
+    private ProductServiceImpl productService;
 
     @Override
     public Purchase createPurchase(Purchase purchase) {
+        productService.saveProductAfterPurchase(purchase);
         return purchaseRepository.save(purchase);
     }
 
