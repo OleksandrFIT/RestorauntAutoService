@@ -5,5 +5,5 @@ import com.work.restorauntautoservice.model.Menu;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface MenuRepository extends MongoRepository<Menu, String> {
-    Menu findByMenuType(MenuType menuType);
+    Menu findByMenuType(String menuType);
 }

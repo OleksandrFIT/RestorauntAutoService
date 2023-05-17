@@ -1,6 +1,5 @@
 package com.work.restorauntautoservice.model;
 
-import com.work.restorauntautoservice.enums.MenuType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document("menu")
-public class Menu {
-    private List<Dish> dishList;
+public class MenuRequest {
+    private List<String> dishNamesList;
     private String menuType;
+
 }

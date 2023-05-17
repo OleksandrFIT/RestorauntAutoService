@@ -26,7 +26,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Restaurant refactorRestaurant(String id, Restaurant restaurant) {
         Restaurant restaurantToUpdate = restaurantRepository.getById(id);
         restaurantToUpdate.setName(restaurant.getName());
-        restaurantToUpdate.setMenu(restaurant.getName());
+        restaurantToUpdate.setMenu(restaurant.getMenu());
         restaurantToUpdate.setSittingSpots(restaurant.getSittingSpots());
         return restaurantRepository.save(restaurantToUpdate);
     }

@@ -19,10 +19,13 @@ public class Product {
     public String id;
     public String name;
     private String code;
-    public ProductCategory category;
+    public ProductCategory category = null;
     private String provider;
     private double orderPrice;
     public double actualPrice;
-    public short availableQuantity;
+    private double weight = 0;
+    public double availableQuantity = 0;
     public short maxQuantity;
+    public Short amountToBuy = null;
+
 }

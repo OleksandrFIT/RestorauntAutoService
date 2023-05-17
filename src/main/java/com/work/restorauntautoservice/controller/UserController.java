@@ -22,9 +22,10 @@ public class UserController {
     }
 
     @PutMapping("/user-edit/{userName}")
-    User editUser(@PathVariable String userName, User user) {
+    User editUser(@PathVariable String userName, @RequestBody User user) {
         return userService.editUser(userName, user);
     }
+
     @GetMapping("/user-findAll")
     List<User> findAllUsers() {
         return userService.findAllUsers();

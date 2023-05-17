@@ -1,6 +1,7 @@
 package com.work.restorauntautoservice.model;
 
 
+import com.work.restorauntautoservice.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,13 +20,7 @@ public class User {
 
     @MongoId(value = FieldType.OBJECT_ID)
     private String id;
-
     @NonNull
     private String username;
-
-    @NonNull
-    private String password;
-
-    @Transient
-    private String matchingPassword;
+    private UserRole userRole;
 }

@@ -1,19 +1,14 @@
 package com.work.restorauntautoservice.service.implementation;
 
-import com.work.restorauntautoservice.analysisAl.ABCanalysisServiceImpl;
 import com.work.restorauntautoservice.analysisAl.CountRestAlgorithmServiceImpl;
 import com.work.restorauntautoservice.exception.NotEnoughProductException;
-import com.work.restorauntautoservice.model.Dish;
-import com.work.restorauntautoservice.model.Product;
-import com.work.restorauntautoservice.model.Purchase;
+import com.work.restorauntautoservice.model.*;
 import com.work.restorauntautoservice.repository.ProductRepository;
 import com.work.restorauntautoservice.service.ProductService;
-import kotlin.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,16 +16,23 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private ABCanalysisServiceImpl abCanalysisService;
+
     @Autowired
     private CountRestAlgorithmServiceImpl countRestAlgorithmService;
 
     @Override
     public Product createProduct(Product product) {
-        return productRepository.save(product);
+        if (findProductByName(product.getName()).isPresent()) {
+            throw new RuntimeException("Product already exists");
+        } else {
+            return productRepository.save(product);
+        }
     }
 
+
+    /**
+        Оновлює всі всі отримані з замовлення продукти (к-ть на складі після створення замовлення)
+     */
     @Override
     public void saveProductAfterPurchase(Purchase purchase) {
         List<Product> updatedProductsList = minusOrderProducts(purchase);
@@ -65,13 +67,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public Optional<Product> findProductByName(String name) {
+        return  productRepository.getProductByName(name);
     }
 
     @Override
-    public Triple<List<Product>, List<Product>, List<Product>> abcAnalisysResult() {
-        return abCanalysisService.abcAnalysis(findAllProducts(), 0.8, 0.95);
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
     }
 
     @Override
@@ -79,24 +81,56 @@ public class ProductServiceImpl implements ProductService {
         return countRestAlgorithmService.countRestProducts();
     }
 
-    public List<Product> minusOrderProducts(Purchase purchase) {
+
+    /**
+     * @param purchase
+     * @return List<Product>
+     *
+     *    Віднімає всі продукти з замовлення.
+     *    проходиться по всьому списку продуктів і перевіряє чи є необіхдна к-ть продуктів на скалі
+     *    Якщо ні, то отримуємо помилку.
+     *    Якщо так, то віднімаємо к-ть даного продукту необхідну для страви від кількості даного продукті на складі.
+     *    Після виконання даної умови, додаємо оновлений продукт в список.
+     *    Отриманий список є списком з оновленою наявною к-тю кожного наявного в замовленні продукту на складі.
+     *    Цей список з оновленими даними новою наявною к-тю продктів на складі повинен бути збережений до бд
+     */
+    private List<Product> minusOrderProducts(Purchase purchase) {
         List<Product> allStorageProducts = findAllProducts();
-        HashMap<Product, Integer> purchaseProducts = getProductsFromPurchase(purchase);
-        int lessAvaliableQuantity;
+
+        // Extracts the list of products and their weights from the purchase. This is required for the order.
+        List<ProductPair> purchaseProducts = getProductsFromPurchase(purchase);
+
         List<Product> updatedProductsList = new ArrayList<>();
         for (Product product : allStorageProducts) {
-            int quantityToSubtract = purchaseProducts.getOrDefault(product, 0);
-            if (quantityToSubtract > product.getAvailableQuantity()) {
-                lessAvaliableQuantity = quantityToSubtract - product.getAvailableQuantity();
+            double availableWeight = product.getAvailableQuantity() * product.getWeight();
+            double weightToSubtract = 0;
+
+            for (ProductPair productPair : purchaseProducts) {
+                if (productPair.getProduct().equals(product)) {
+                    weightToSubtract += productPair.getWeight();
+                }
+            }
+
+            // Checks if the required product weight is greater than the available weight at the storage
+            if (weightToSubtract > availableWeight) {
+                double lessAvailableWeight = weightToSubtract - availableWeight;
                 throw new NotEnoughProductException("Insufficient quantity for product: " + product.getName()
-                        + "\nYou have " + lessAvaliableQuantity + "less than you need to make this purchase");
-            } else if (quantityToSubtract > 0) {
-                int updatedQuantity = product.getAvailableQuantity() - quantityToSubtract;
-                short updatedQuantityShortValue = Short.parseShort(Integer.toString(updatedQuantity));
-                Product updatedProduct = new Product(product.getId(), product.getName(), product.getCode(),
-                        product.getCategory(), product.getProvider(), product.getOrderPrice(), product.getActualPrice(),
-                        updatedQuantityShortValue,
-                        product.getMaxQuantity());
+                        + "\nYou need " + weightToSubtract + "g but only have " + availableWeight + "g available.");
+            } else if (weightToSubtract > 0) {
+                double updatedQuantity = (availableWeight - weightToSubtract) / product.getWeight();
+//                double updatedQuantity = (double) Math.round(updatedWeight / product.getWeight());
+                Product updatedProduct = new Product(
+                        product.getId(),
+                        product.getName(),
+                        product.getCode(),
+                        product.getCategory(),
+                        product.getProvider(),
+                        product.getOrderPrice(),
+                        product.getActualPrice(),
+                        product.getWeight(),
+                        updatedQuantity,
+                        product.getMaxQuantity(),
+                        null);
                 updatedProductsList.add(updatedProduct);
             } else {
                 updatedProductsList.add(product);
@@ -105,27 +139,42 @@ public class ProductServiceImpl implements ProductService {
         return updatedProductsList;
     }
 
-    private HashMap<Product, Integer> getProductsFromPurchase(Purchase purchase) {
-        HashMap<Dish, Integer> dishIntegerHashMap = purchase.getDishList();
-        HashMap<Product, Integer> productList;
-        HashMap<Product, Integer> outputProductSet = null;
-        for (Dish dish :
-                dishIntegerHashMap.keySet()) {
-            productList = dish.getProductList();
-            for (Product product :
-                    productList.keySet()) {
-                int value = productList.get(product);
-                // Якщо продукт вже є в новій HashMap, додаємо значення до наявного значення
-                if (outputProductSet.containsKey(product)) {
-                    int sum = outputProductSet.get(product) + value;
-                    outputProductSet.put(product, sum);
-                    // Якщо продукту немає в новій HashMap, записуємо його та його значення
-                } else {
-                    outputProductSet.put(product, value);
+
+
+    /**
+     * @param purchase
+     * @return
+     *
+     * Витягує список продуктів з покупки і їх кількість.
+     * Продукти та кількість необхідна для замовлення
+     */
+    private List<ProductPair> getProductsFromPurchase(Purchase purchase) {
+        List<DishPair> dishPairList = purchase.getDishList();
+        List<ProductPair> outputProductList = new ArrayList<>();
+        for (DishPair dishPair : dishPairList) {
+            List<ProductPair> productList = dishPair.getDish().getProductList();
+            int quantity = dishPair.getQuantity();
+            for (ProductPair productPair : productList) {
+                int weight = productPair.getWeight() * quantity;
+                Product product = productPair.getProduct();
+                // If product already exists in outputProductList, add weight to existing weight
+                boolean found = false;
+                for (ProductPair outputProductPair : outputProductList) {
+                    if (outputProductPair.getProduct().equals(product)) {
+                        outputProductPair.setWeight(outputProductPair.getWeight() + weight);
+                        found = true;
+                        break;
+                    }
+                }
+                // If product doesn't exist in outputProductList, add new product to list
+                if (!found) {
+                    outputProductList.add(new ProductPair(product, weight));
                 }
             }
         }
-        return outputProductSet;
+        return outputProductList;
     }
+
+
 
 }

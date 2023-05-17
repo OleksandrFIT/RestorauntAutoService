@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface OrderService {
 
-    Order createOrder(Order order);
+    Order createOrder();
     void deleteOrder(String id);
     Order refactorOrder(String id, Order order);
     List<Order> findAllOrders();

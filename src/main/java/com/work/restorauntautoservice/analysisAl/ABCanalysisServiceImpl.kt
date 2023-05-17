@@ -13,10 +13,10 @@ class ABCanalysisServiceImpl(
 ) : ABCanalysisService {
 
     override fun abcAnalysis(
-        items: List<Product>,
         percentA: Double,
         percentB: Double
     ): Triple<List<Product>, List<Product>, List<Product>> {
+        val items = productService.findAllProducts();
         val sortedItems = items.sortedByDescending { it.actualPrice }
         val totalValue = sortedItems.sumOf { it.actualPrice }
         var cumValue = 0.0
@@ -37,17 +37,17 @@ class ABCanalysisServiceImpl(
         val itemsA = sortedItems.take(indexA + 1)
         itemsA.map {
             it.category = ProductCategory.A
-            productService!!.editProduct(it.id, it)
+            productService.editProduct(it.id, it)
         }
         val itemsB = sortedItems.subList(indexA + 1, indexB + 1)
         itemsB.map {
             it.category = ProductCategory.B
-            productService!!.editProduct(it.id, it)
+            productService.editProduct(it.id, it)
         }
         val itemsC = sortedItems.subList(indexB + 1, sortedItems.size)
         itemsC.map {
             it.category = ProductCategory.C
-            productService!!.editProduct(it.id, it)
+            productService.editProduct(it.id, it)
         }
         return Triple(itemsA, itemsB, itemsC)
     }

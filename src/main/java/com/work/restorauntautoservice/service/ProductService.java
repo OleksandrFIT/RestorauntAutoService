@@ -14,7 +14,7 @@ public interface ProductService {
     void deleteProduct(String id);
     void saveProductAfterPurchase(Purchase purchase);
     Optional<Product> findProduct(String id);
+    Optional<Product> findProductByName(String name);
     List<Product> findAllProducts();
-    Triple<List<Product>, List<Product>, List<Product>> abcAnalisysResult();
     List<Product> countRestProductsResult();
 }

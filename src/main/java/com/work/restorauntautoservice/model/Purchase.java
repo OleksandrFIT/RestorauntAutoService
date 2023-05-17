@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.util.HashMap;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +17,9 @@ import java.util.HashMap;
 public class Purchase {
 
     @MongoId(value = FieldType.OBJECT_ID)
-    private String id;
+    private String id = null;
+    private String waitressName;
     private double price;
-    private HashMap<Dish,Integer> dishList;
+    private List<DishPair> dishList;
+
 }

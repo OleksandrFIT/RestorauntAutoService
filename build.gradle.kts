@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	java
@@ -25,13 +24,13 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.github.sirayan.genericdb-mongo:generic-db:0.0.3")
+	implementation("org.apache.tomcat.embed:tomcat-embed-jasper:10.0.16")
+	implementation("javax.servlet:jstl:1.2")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.1.RELEASE")
-//	implementation("org.springframework.security:spring-security-config:5.6.1")
-	implementation("javax.servlet:javax.servlet-api:4.0.1")
+	implementation ("org.springframework.boot:spring-boot-starter-web")
 	implementation(kotlin("stdlib-jdk8"))
 }
 
@@ -47,12 +46,4 @@ sourceSets {
 }
 tasks.withType<Copy> {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-	jvmTarget = "1.8"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-	jvmTarget = "1.8"
 }

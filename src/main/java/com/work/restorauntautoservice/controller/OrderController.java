@@ -17,8 +17,8 @@ public class OrderController {
 
     @PostMapping("/order-create")
     @ResponseStatus(HttpStatus.CREATED)
-    Order createOrder(@RequestBody Order order) {
-        return orderService.createOrder(order);
+    Order createOrder() {
+        return orderService.createOrder();
     }
 
     @PutMapping("/order-edit/{id}")

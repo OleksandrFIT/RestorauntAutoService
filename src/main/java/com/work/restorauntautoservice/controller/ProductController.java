@@ -1,6 +1,7 @@
 package com.work.restorauntautoservice.controller;
 
 import com.work.restorauntautoservice.model.Product;
+import com.work.restorauntautoservice.model.Purchase;
 import com.work.restorauntautoservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,6 @@ public class ProductController {
     }
 
     @PutMapping("/product-edit/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
     Product editProduct(@PathVariable String id, @RequestBody Product product) {
         return productService.editProduct(id, product);
     }
@@ -42,4 +42,14 @@ public class ProductController {
        productService.deleteProduct(id);
     }
 
+    @GetMapping("/product-count-rest")
+    List<Product> countRestProductsResult() {
+        return productService.countRestProductsResult();
+    }
+
+    //maybe add status
+    @PutMapping("/product-after-puchase")
+    void saveProductAfterPurchase(Purchase purchase) {
+        productService.saveProductAfterPurchase(purchase);
+    }
 }
